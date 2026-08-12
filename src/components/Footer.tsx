@@ -2,8 +2,6 @@ import React from 'react';
 import { Mail, Phone, ArrowUp } from 'lucide-react';
 
 interface FooterProps {
-  onOpenSupabaseConfig: () => void;
-  onOpenGitHubExport: () => void;
   onSelectAudience: (audience: string) => void;
 }
 
@@ -32,8 +30,6 @@ const TikTokIcon = () => (
 );
 
 export const Footer: React.FC<FooterProps> = ({
-  onOpenSupabaseConfig,
-  onOpenGitHubExport,
   onSelectAudience
 }) => {
   const scrollToTop = () => {
