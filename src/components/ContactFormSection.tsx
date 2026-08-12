@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { AudienceType, LeadFormData, LeadRecord, SupabaseConfig } from '../types';
+import { AudienceType, LeadFormData, LeadRecord } from '../types';
 import { submitLeadToSupabase } from '../lib/supabase';
 import { Send, Mail, Phone, CheckCircle2, AlertCircle, Loader2, Sparkles, User, MessageSquare } from 'lucide-react';
 
 interface ContactFormSectionProps {
   selectedAudience: AudienceType;
   onAudienceChange: (audience: AudienceType) => void;
-  supabaseConfig: SupabaseConfig;
-  onOpenSupabaseConfig: () => void;
 }
 
 export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
   selectedAudience,
-  onAudienceChange,
-  supabaseConfig,
-  onOpenSupabaseConfig
+  onAudienceChange
 }) => {
   const [formData, setFormData] = useState<LeadFormData>({
     full_name: '',
