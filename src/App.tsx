@@ -7,7 +7,8 @@ import { TwoEnginesSection } from './components/TwoEnginesSection';
 import { CurriculumPhilosophy } from './components/CurriculumPhilosophy';
 import { ProgramTracks } from './components/ProgramTracks';
 import { AudienceSplitSection } from './components/AudienceSplitSection';
-import { ContactFormSection } from './components/ContactFormSection';
+import { SmeCardInfo } from './components/SmeCardInfo';
+import { ContactCardInfo } from './components/ContactCardInfo';
 import { Footer } from './components/Footer';
 import { AudienceType } from './types';
 
@@ -49,14 +50,17 @@ export default function App() {
         {/* 7. AUDIENCE SPLIT SECTIONS */}
         <AudienceSplitSection onSelectAudience={handleAudienceSelection} />
 
-        {/* 8. CONTACT FORM & SUPABASE INTEGRATION */}
-        <ContactFormSection
+        {/* 8. DEDICATED SME SOLUTIONS & CARD INFO */}
+        <SmeCardInfo onSelectAudience={handleAudienceSelection} />
+
+        {/* 9. CONTACT CARD INFO & FORM */}
+        <ContactCardInfo
           selectedAudience={selectedAudience}
           onAudienceChange={(aud) => setSelectedAudience(aud)}
         />
       </main>
 
-      {/* 9. FOOTER */}
+      {/* 10. FOOTER */}
       <Footer
         onSelectAudience={handleAudienceSelection}
       />

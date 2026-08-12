@@ -104,8 +104,8 @@ CREATE POLICY "Public insert only on leads"
 
 export function getSavedSupabaseConfig(): { url: string; key: string } {
   const metaEnv = (import.meta as any).env || {};
-  const url = localStorage.getItem(STORAGE_KEY_URL) || metaEnv.VITE_SUPABASE_URL || metaEnv.NEXT_PUBLIC_SUPABASE_URL || 'https://sfglqcallsmrdccnbkoa.supabase.co';
-  const key = localStorage.getItem(STORAGE_KEY_ANON) || metaEnv.VITE_SUPABASE_ANON_KEY || metaEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || metaEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  const url = localStorage.getItem(STORAGE_KEY_URL) || metaEnv.VITE_SUPABASE_URL || 'https://sfglqcallsmrdccnbkoa.supabase.co';
+  const key = localStorage.getItem(STORAGE_KEY_ANON) || metaEnv.VITE_SUPABASE_ANON_KEY || '';
   return { url, key };
 }
 

@@ -68,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
               Programs
             </button>
             <button
-              onClick={() => handleNavClick('contact', 'SME / Business Owner')}
+              onClick={() => handleNavClick('smes', 'SME / Business Owner')}
               className="text-white/80 hover:text-[#D4AF37] transition-colors py-2"
             >
               SMEs
@@ -161,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
               Programs
             </button>
             <button
-              onClick={() => handleNavClick('contact', 'SME / Business Owner')}
+              onClick={() => handleNavClick('smes', 'SME / Business Owner')}
               className="text-left py-2 px-3 rounded hover:bg-[#1116A6] text-white/90"
             >
               SMEs (Services)
