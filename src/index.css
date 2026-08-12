@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    color: #4B5568;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  
+  .font-mono {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+    box-shadow: 0 0 22px rgba(212, 175, 55, 0.8);
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes circuit-line {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes video-pan-30s {
+  0% {
+    transform: scale(1.05) translate(0%, 0%);
+    filter: brightness(1) contrast(1.05);
+  }
+  20% {
+    transform: scale(1.18) translate(-2.5%, -1.5%);
+    filter: brightness(1.08) contrast(1.08);
+  }
+  45% {
+    transform: scale(1.22) translate(2.5%, -2%);
+    filter: brightness(1.05) contrast(1.05);
+  }
+  70% {
+    transform: scale(1.15) translate(1.5%, 1.5%);
+    filter: brightness(1.1) contrast(1.08);
+  }
+  88% {
+    transform: scale(1.08) translate(-1%, 0.5%);
+    filter: brightness(1.05) contrast(1.05);
+  }
+  100% {
+    transform: scale(1.05) translate(0%, 0%);
+    filter: brightness(1) contrast(1.05);
+  }
+}
+
+.animate-video-pan {
+  animation: video-pan-30s 30s infinite ease-in-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite ease-in-out;
+}
+
+.animate-float {
+  animation: float-gentle 4s infinite ease-in-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0D66;
+}
+::-webkit-scrollbar-thumb {
+  background: #1116A6;
+  border-radius: 4px;
+  border: 1px solid #D4AF37;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
+}
