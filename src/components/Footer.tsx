@@ -167,7 +167,7 @@ export const Footer: React.FC<FooterProps> = ({
 
               <li>
                 <a
-                  href="https://www.tiktok.com/"
+                  href="https://www.tiktok.com/@sticktech_a"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2.5 text-white/85 hover:text-[#D4AF37] transition-colors group"
