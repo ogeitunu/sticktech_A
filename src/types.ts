@@ -16,6 +16,34 @@ export interface LeadRecord extends LeadFormData {
   id: string;
   created_at: string;
   source?: string;
+  auto_response_sent?: boolean;
+  auto_response_subject?: string;
+  response_sent_at?: string;
+  email_response?: EmailResponseDetails;
+}
+
+export interface EmailResponseDetails {
+  sent: boolean;
+  subject: string;
+  recipientEmail: string;
+  recipientName: string;
+  timestamp: string;
+  deliveryMethod: "smtp" | "resend" | "supabase_logged";
+  messagePreview: string;
+  htmlContent?: string;
+  error?: string;
+}
+
+export interface EmailLogRecord {
+  id: string;
+  lead_id?: string;
+  created_at: string;
+  recipient_email: string;
+  recipient_name: string;
+  subject: string;
+  delivery_status: "sent" | "logged" | "queued" | "failed";
+  email_body?: string;
+  error_message?: string;
 }
 
 export interface SupabaseConfig {
