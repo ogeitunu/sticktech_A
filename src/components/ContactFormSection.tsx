@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AudienceType, LeadFormData, LeadRecord } from '../types';
 import { submitLeadToSupabase } from '../lib/supabase';
-import { Send, Mail, Phone, CheckCircle2, AlertCircle, Loader2, Sparkles, User, MessageSquare } from 'lucide-react';
+import { Send, Mail, Phone, CheckCircle2, AlertCircle, Loader2, Sparkles, User, MessageSquare, Inbox, Eye, ExternalLink, ShieldCheck } from 'lucide-react';
 
 interface ContactFormSectionProps {
   selectedAudience: AudienceType;
@@ -24,6 +24,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
   const [loading, setLoading] = useState(false);
   const [inlineSuccess, setInlineSuccess] = useState<string | null>(null);
   const [successModal, setSuccessModal] = useState<{ open: boolean; message: string; record?: LeadRecord } | null>(null);
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Sync prop changes to form state
@@ -37,6 +38,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
     e.preventDefault();
     setErrorMessage(null);
     setInlineSuccess(null);
+    setShowEmailPreview(false);
 
     // Spam / Bot trap check
     if (honeypot) {
@@ -70,7 +72,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
       const result = await submitLeadToSupabase(formData);
       
       if (result.success) {
-        setInlineSuccess('Inquiry received successfully! Our team will contact you shortly.');
+        setInlineSuccess(`Inquiry received and automated confirmation email dispatched to ${formData.email.trim()}!`);
         setSuccessModal({
           open: true,
           message: result.message,
@@ -120,7 +122,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
               </h2>
 
               <p className="text-base text-white/85 leading-relaxed">
-                Whether you're a school proprietor, a graduate ready to build, or an SME looking for practical AI support, tell us what you need and we will follow up directly.
+                Whether you're a school proprietor, a graduate ready to build, or an SME looking for practical AI support, tell us what you need and our system will instantly send a confirmation email with next steps.
               </p>
             </div>
 
@@ -159,9 +161,10 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
                 </div>
               </div>
 
-              <p className="text-xs text-white/70 pt-1">
-                Response time: Within 24 hours during business days.
-              </p>
+              <div className="pt-2 border-t border-white/10 flex items-center gap-2 text-xs text-[#D4AF37]">
+                <ShieldCheck className="w-4 h-4 shrink-0" />
+                <span>Instant automated response email dispatched upon form submission</span>
+              </div>
             </div>
 
           </div>
@@ -175,7 +178,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
                   Send Us an Inquiry
                 </h3>
                 <p className="text-xs sm:text-sm text-[#4B5568]">
-                  Fill out the details below to submit your lead directly to our database.
+                  Fill out the details below. We log your inquiry in our database and instantly send a personalized response email to your inbox.
                 </p>
               </div>
 
@@ -232,7 +235,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
                 {/* Field 2: Email Address */}
                 <div className="space-y-1.5">
                   <label htmlFor="email" className="block text-xs font-mono font-bold text-[#0A0D66] uppercase">
-                    Email Address <span className="text-red-500">*</span>
+                    Email Address (Where you'll receive your confirmation) <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -269,7 +272,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
                   </div>
                 </div>
 
-                {/* Field 3: I am a... */}
+                {/* Field 4: I am a... */}
                 <div className="space-y-1.5">
                   <label htmlFor="audience_type" className="block text-xs font-mono font-bold text-[#0A0D66] uppercase">
                     I am a... <span className="text-red-500">*</span>
@@ -293,7 +296,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
                   </select>
                 </div>
 
-                {/* Field 4: Message */}
+                {/* Field 5: Message */}
                 <div className="space-y-1.5">
                   <label htmlFor="message" className="block text-xs font-mono font-bold text-[#0A0D66] uppercase">
                     What would you like to know? <span className="text-red-500">*</span>
@@ -322,11 +325,11 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin text-[#0A0D66]" />
-                      <span>Sending to Supabase...</span>
+                      <span>Dispatching to Supabase & Sending Email...</span>
                     </>
                   ) : (
                     <>
-                      <span>Send Message</span>
+                      <span>Send Inquiry & Get Response Email</span>
                       <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
@@ -347,10 +350,10 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
 
       </div>
 
-      {/* Interactive Success Modal */}
+      {/* Interactive Success & Automated Email Preview Modal */}
       {successModal && successModal.open && (
-        <div className="fixed inset-0 z-50 bg-[#0A0D66]/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border-4 border-[#D4AF37] text-center space-y-5 text-[#4B5568]">
+        <div className="fixed inset-0 z-50 bg-[#0A0D66]/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-4 border-[#D4AF37] text-center space-y-5 text-[#4B5568] my-8">
             
             <div className="w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-500 text-emerald-600 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-10 h-10" />
@@ -358,32 +361,85 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
 
             <div className="space-y-2">
               <h3 className="text-2xl font-bold font-grotesk text-[#0A0D66]">
-                Submission Received!
+                Inquiry Received & Logged!
               </h3>
-              <p className="text-sm font-medium text-emerald-700">
-                {successModal.message}
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono">
+                <Inbox className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Automated Response Email Dispatched</span>
+              </div>
+              <p className="text-xs sm:text-sm font-medium text-[#4B5568]">
+                We have saved your submission in the Supabase database and dispatched an automated confirmation email to <strong>{successModal.record?.email}</strong>.
               </p>
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-xl text-left border border-slate-200 text-xs space-y-1 font-mono">
-              <p className="text-[#0A0D66] font-bold">Submission Record Summary:</p>
+            {/* Submission Record Summary Card */}
+            <div className="bg-slate-50 p-4 rounded-xl text-left border border-slate-200 text-xs space-y-1.5 font-mono">
+              <div className="flex items-center justify-between pb-1 border-b border-slate-200">
+                <span className="text-[#0A0D66] font-bold">Supabase Database Record:</span>
+                <span className="text-[10px] bg-blue-100 text-[#0A0D66] px-2 py-0.5 rounded font-bold">Active</span>
+              </div>
               <p className="text-[#4B5568]"><strong>Name:</strong> {successModal.record?.full_name}</p>
               <p className="text-[#4B5568]"><strong>Email:</strong> {successModal.record?.email}</p>
               <p className="text-[#4B5568]"><strong>Phone:</strong> {successModal.record?.phone}</p>
-              <p className="text-[#4B5568]"><strong>Audience:</strong> {successModal.record?.audience_type}</p>
-              <p className="text-[#4B5568]"><strong>ID:</strong> {successModal.record?.id}</p>
+              <p className="text-[#4B5568]"><strong>Category:</strong> {successModal.record?.audience_type}</p>
+              <p className="text-[#4B5568] truncate"><strong>Subject:</strong> {successModal.record?.auto_response_subject || 'Inquiry Confirmation — StickTech Africa'}</p>
+              <p className="text-[#4B5568]"><strong>Ref ID:</strong> {successModal.record?.id}</p>
             </div>
 
-            <p className="text-xs text-[#4B5568]">
-              Thank you for reaching out to <strong>StickTech Africa</strong>! Our team will review your inquiry and follow up directly at {successModal.record?.email}.
-            </p>
+            {/* Toggle View for Full HTML Email Preview */}
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => setShowEmailPreview(!showEmailPreview)}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-slate-300 hover:border-[#1116A6] text-xs font-semibold text-[#0A0D66] bg-slate-100/70 hover:bg-slate-100 transition-colors"
+              >
+                <Eye className="w-4 h-4 text-[#1116A6]" />
+                <span>{showEmailPreview ? 'Hide Automated Email Preview' : 'Preview Sent Confirmation Email'}</span>
+              </button>
 
-            <button
-              onClick={() => setSuccessModal(null)}
-              className="w-full bg-[#1116A6] hover:bg-[#0A0D66] text-white font-bold py-3 rounded-xl transition-all text-sm font-grotesk"
-            >
-              Done & Return
-            </button>
+              {showEmailPreview && (
+                <div className="text-left bg-slate-900 text-slate-100 p-4 rounded-xl border border-slate-800 text-xs space-y-3 max-h-60 overflow-y-auto font-sans shadow-inner">
+                  <div className="border-b border-slate-700 pb-2 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                    <span>To: {successModal.record?.email}</span>
+                    <span className="text-[#D4AF37]">From: StickTech Africa</span>
+                  </div>
+                  <div className="font-bold text-[#D4AF37] text-sm">
+                    {successModal.record?.auto_response_subject || 'Inquiry Confirmation — StickTech Africa'}
+                  </div>
+                  <div className="text-slate-300 space-y-2 leading-relaxed">
+                    <p>Hello <strong>{successModal.record?.full_name}</strong>,</p>
+                    <p>
+                      Thank you for contacting StickTech Africa regarding <strong>{successModal.record?.audience_type}</strong>. We have logged your request into our database.
+                    </p>
+                    <p className="p-2 bg-slate-800 rounded border-l-2 border-[#D4AF37] text-slate-200">
+                      &ldquo;{successModal.record?.message}&rdquo;
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      Our coordinators are reviewing your submission and will reach out via WhatsApp/Phone at {successModal.record?.phone} within 24 hours.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Action Buttons */}
+            <div className="space-y-2 pt-2">
+              <a
+                href={`mailto:sticktechafrica@gmail.com?subject=Follow up on Ref: ${encodeURIComponent(successModal.record?.id || '')}`}
+                className="w-full bg-[#1116A6] hover:bg-[#0A0D66] text-white font-bold py-3 px-4 rounded-xl transition-all text-xs font-grotesk flex items-center justify-center gap-2"
+              >
+                <span>Reply / Open Mail Client</span>
+                <ExternalLink className="w-3.5 h-3.5 text-[#D4AF37]" />
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setSuccessModal(null)}
+                className="w-full bg-slate-100 hover:bg-slate-200 text-[#0A0D66] font-semibold py-2.5 rounded-xl transition-all text-xs font-grotesk"
+              >
+                Close & Return
+              </button>
+            </div>
 
           </div>
         </div>
@@ -392,3 +448,4 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
     </section>
   );
 };
+

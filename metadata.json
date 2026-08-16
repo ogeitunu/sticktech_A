@@ -1,6 +1,6 @@
 {
   "name": "StickTech Africa",
-  "description": "Dual-engine EdTech & Tech Solutions landing page with Supabase lead collection, program showcases, and GitHub repository exporter.",
+  "description": "Dual-engine EdTech & Tech Solutions platform with automated email responses, Supabase database synchronization, and SME services.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

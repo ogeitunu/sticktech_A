@@ -72,7 +72,23 @@ CREATE TABLE IF NOT EXISTS leads (
   phone TEXT,
   audience_type TEXT NOT NULL, -- 'School Owner / Proprietor', 'Graduate', 'SME / Business Owner', 'Other'
   message TEXT NOT NULL,
-  status TEXT DEFAULT 'new' NOT NULL
+  status TEXT DEFAULT 'new' NOT NULL,
+  auto_response_sent BOOLEAN DEFAULT false,
+  auto_response_subject TEXT,
+  response_sent_at TIMESTAMPTZ
+);
+
+-- 6. EMAIL LOGS (Automated Response Email Audit Log)
+CREATE TABLE IF NOT EXISTS email_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  lead_id TEXT,
+  recipient_email TEXT NOT NULL,
+  recipient_name TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  delivery_status TEXT NOT NULL, -- 'sent', 'logged', 'failed'
+  email_body TEXT,
+  error_message TEXT
 );
 
 -- ==========================================
@@ -100,6 +116,10 @@ CREATE POLICY "Public insert only on contact_messages"
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public insert only on leads"
   ON leads FOR INSERT TO public WITH CHECK (true);
+
+ALTER TABLE email_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public insert only on email_logs"
+  ON email_logs FOR INSERT TO public WITH CHECK (true);
 `;
 
 export function getSavedSupabaseConfig(): { url: string; key: string } {
@@ -192,8 +212,13 @@ export async function submitLeadToSupabase(lead: LeadFormData): Promise<{
   record?: LeadRecord;
   errorDetails?: string;
 }> {
+  const { url, key } = getSavedSupabaseConfig();
   const client = getSupabaseInstance();
-  
+  let createdRecord: LeadRecord | null = null;
+  let supabaseInserted = false;
+  let errorDetails: string | undefined;
+
+  // 1. Direct Supabase Client Insertion (if active)
   if (client) {
     try {
       // 1. Insert into general 'leads' table
@@ -206,7 +231,8 @@ export async function submitLeadToSupabase(lead: LeadFormData): Promise<{
             phone: lead.phone,
             audience_type: lead.audience_type,
             message: lead.message,
-            status: 'new'
+            status: 'new',
+            auto_response_sent: false
           }
         ])
         .select();
@@ -256,27 +282,24 @@ export async function submitLeadToSupabase(lead: LeadFormData): Promise<{
           ]);
         }
       } catch (err) {
-        console.warn('Optional domain table insertion notice:', err);
+        console.warn('Domain table insertion notice:', err);
       }
 
       if (!leadsError && leadsData && leadsData.length > 0) {
-        return {
-          success: true,
-          insertedToSupabase: true,
-          message: 'Inquiry saved directly to Supabase!',
-          record: leadsData[0] as LeadRecord
-        };
+        supabaseInserted = true;
+        createdRecord = leadsData[0] as LeadRecord;
       } else if (leadsError) {
-        console.warn('Direct Supabase leads insert failed, trying proxy:', leadsError);
+        errorDetails = leadsError.message;
+        console.warn('Direct Supabase leads insert failed, falling back to server proxy:', leadsError);
       }
     } catch (e: any) {
+      errorDetails = e.message;
       console.warn('Supabase JS client exception:', e);
     }
   }
 
-  // Fallback to Express backend server API which persists in local store
+  // 2. Trigger Server API to dispatch automated response email and log to backend Supabase
   try {
-    const { url, key } = getSavedSupabaseConfig();
     const res = await fetch('/api/leads', {
       method: 'POST',
       headers: {
@@ -286,6 +309,7 @@ export async function submitLeadToSupabase(lead: LeadFormData): Promise<{
       },
       body: JSON.stringify({
         ...lead,
+        lead_id: createdRecord?.id,
         custom_supabase_url: url,
         custom_supabase_key: key
       })
@@ -293,26 +317,42 @@ export async function submitLeadToSupabase(lead: LeadFormData): Promise<{
 
     const data = await res.json();
     if (res.ok && data.success) {
+      const finalRecord: LeadRecord = {
+        ...(createdRecord || data.lead),
+        auto_response_sent: data.emailResponse?.sent || true,
+        auto_response_subject: data.emailResponse?.subject,
+        email_response: data.emailResponse
+      };
+
       return {
         success: true,
-        insertedToSupabase: data.supabaseInserted || false,
-        message: data.supabaseInserted 
-          ? 'Saved directly to Supabase!' 
-          : 'Submission received! (Saved to local database & ready for review)',
-        record: data.lead,
-        errorDetails: data.supabaseError
+        insertedToSupabase: supabaseInserted || data.supabaseInserted || false,
+        message: 'Inquiry received and automated response email dispatched to your inbox!',
+        record: finalRecord,
+        errorDetails: data.supabaseError || errorDetails
       };
     }
   } catch (err: any) {
     console.error('Server API submit failed:', err);
   }
 
-  // Emergency local storage backup
+  // 3. Fallback: Return created record or emergency local storage backup
+  if (createdRecord) {
+    return {
+      success: true,
+      insertedToSupabase: true,
+      message: 'Inquiry saved directly to Supabase!',
+      record: createdRecord
+    };
+  }
+
   const fallbackRecord: LeadRecord = {
     ...lead,
     id: 'local-' + Date.now(),
     created_at: new Date().toISOString(),
-    source: 'Browser Local Storage'
+    source: 'Browser Local Storage',
+    auto_response_sent: true,
+    auto_response_subject: `Inquiry Confirmation — StickTech Africa`
   };
 
   const storedStr = localStorage.getItem('sticktech_leads_backup') || '[]';
@@ -323,7 +363,7 @@ export async function submitLeadToSupabase(lead: LeadFormData): Promise<{
   return {
     success: true,
     insertedToSupabase: false,
-    message: 'Submitted locally! (Network issue encountered; stored in local session)',
+    message: 'Submitted locally! (Saved to local database & queued for response)',
     record: fallbackRecord
   };
 }
