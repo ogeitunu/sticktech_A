@@ -63,7 +63,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectAudience }) =>
 
             {/* Subhead */}
             <p className="text-base sm:text-lg text-white/85 font-normal max-w-2xl leading-relaxed">
-              StickTech Africa trains high school students and graduates in Game development,IOT, mobile apps, and AI agents inside the schools they already attend, then channels that same talent into real solutions for SMEs.
+              StickTech Africa trains high school students and graduates in Game development, IOT , mobile apps, and AI agents inside the schools they already attend, then channels that same talent into real solutions for SMEs.
             </p>
 
             {/* CTA Action Buttons */}
