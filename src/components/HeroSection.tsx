@@ -63,7 +63,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectAudience }) =>
 
             {/* Subhead */}
             <p className="text-base sm:text-lg text-white/85 font-normal max-w-2xl leading-relaxed">
-              StickTech Africa trains high school students and graduates in game development, mobile apps, and AI agents inside the schools they already attend, then channels that same talent into real solutions for SMEs.
+              StickTech Africa trains high school students and graduates in Game development,IOT, mobile apps, and AI agents inside the schools they already attend, then channels that same talent into real solutions for SMEs.
             </p>
 
             {/* CTA Action Buttons */}
@@ -137,7 +137,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectAudience }) =>
                   }`}
                 >
                   <Code2 className="w-4 h-4" />
-                  <span>Our Academy</span>
+                  <span>OUR STEM ACADEMY</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('solutions')}
@@ -167,7 +167,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectAudience }) =>
                   </div>
                   <div className="pt-2 border-t border-white/10 text-xs text-white/80 flex justify-between items-center font-medium">
                     <span>Status: High Engagement</span>
-                    <span className="text-[#D4AF37] font-bold">65% Female Cohort</span>
+                    <span className="text-[#D4AF37] font-bold">65% Female </span>
                   </div>
                 </div>
               ) : (
