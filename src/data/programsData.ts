@@ -53,23 +53,23 @@ export const PROGRAM_TRACKS: ProgramTrack[] = [
     badge: "Flagship Track"
   },
   {
-    id: "digital-marketing",
-    title: "Digital Marketing & Social Media",
+    id: "digital-marketing & Content Creation",
+    title: "Digital Marketing, Graphics Design, Video Editing & Social Media",
     iconName: "TrendingUp",
     category: "Academy",
-    description: "Practical tech pathways specifically empowering Arts and Commercial-track students with data-driven audience growth skills.",
+    description: "Practical tech pathways specifically empowering non-Tech-track students with data-driven audience growth skills; Visual storytelling (br) skills paired with marketing and SME-facing tracks to produce high-grade brand assets.",
     tools: ["Meta Business Suite", "Google Analytics", "Content Planners"],
     studentOutput: "Full multi-channel campaign strategy and ROI dashboard for a local business partner.",
     badge: "Commercial Track"
   },
   {
-    id: "graphics-video",
-    title: "Graphics Design & Video Editing",
+    id: "IOT & AI",
+    title: "Internet of Things (IoT) & Smart Systems",
     iconName: "Palette",
     category: "Academy",
-    description: "Visual storytelling skills paired with marketing and SME-facing tracks to produce high-grade brand assets.",
-    tools: ["Canva Pro", "CapCut / Premiere", "Figma"],
-    studentOutput: "Complete brand kit, social promo videos, and product catalog for SME clients.",
+    description: "Bridge the physical and digital worlds by building connected smart devices, automation systems, and cloud-driven hardware.",
+    tools: ["Arduino & ESP32 Microcontrollers", "Sensors, Relays & Circuit Architecture", "Wi-Fi, Bluetooth & MQTT Cloud Logging", "Real-World Smart Home & Industrial Projects"],
+    studentOutput: "Hardware & Cloud, STEM and product catalog for SME clients.",
     badge: "Creative Tech"
   },
   {
