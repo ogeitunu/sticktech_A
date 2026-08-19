@@ -51,7 +51,7 @@ export const ProgramTracks: React.FC<ProgramTracksProps> = ({ onSelectAudience }
           </h2>
 
           <p className="text-base sm:text-lg text-[#4B5568] leading-relaxed">
-            Six specialized practical pathways designed to turn zero-experience high schoolers and graduates into capable creators.
+            Six - Seven specialized practical pathways designed to turn zero-experience high schoolers and graduates into capable creators.
           </p>
         </div>
 
