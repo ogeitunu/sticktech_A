@@ -352,7 +352,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
                         </>
                       ) : (
                         <>
-                          <span>Sending Inquiry</span>
+                          <span>Send Inquiry</span>
                           <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </>
                       )}
