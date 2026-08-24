@@ -14,8 +14,8 @@ export const TwoEnginesSection: React.FC<TwoEnginesSectionProps> = ({ onSelectAu
 
   const scrollToPartnerships = () => {
     onSelectAudience('School Owner / Proprietor');
-    const elem = document.getElementById('partnerships');
-    if (elem) elem.scrollIntoView({ behavior: 'smooth' });
+    const elem = document.getElementById('partnership-pathways') || document.getElementById('partnerships');
+    if (elem) elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (

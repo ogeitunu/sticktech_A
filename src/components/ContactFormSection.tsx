@@ -13,13 +13,11 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
   onAudienceChange
 }) => {
   const [formData, setFormData] = useState<LeadFormData>({
-    full_name: '',
-    email: '',
-    phone: '',
-    audience_type: selectedAudience,
-    message: ''
-  });
-
+  full_name: '',
+  email: '',
+  audience_type: selectedAudience,
+  message: '',
+} as LeadFormData);
   const [honeypot, setHoneypot] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
