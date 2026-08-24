@@ -60,7 +60,7 @@ export const PROGRAM_TRACKS: ProgramTrack[] = [
     description: "Practical tech pathways specifically empowering non-Tech-track students with data-driven audience growth skills; Visual storytelling (br) skills paired with marketing and SME-facing tracks to produce high-grade brand assets.",
     tools: ["Meta Business Suite", "Google Analytics", "Content Planners"],
     studentOutput: "Full multi-channel campaign strategy and ROI dashboard for a local business partner.",
-    badge: "Commercial Track"
+    badge: "Media Track"
   },
   {
     id: "IOT & AI",
