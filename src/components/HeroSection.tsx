@@ -15,6 +15,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectAudience }) =>
     if (elem) elem.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const scrollToPartnerships = () => {
+    onSelectAudience('School Owner / Proprietor');
+    const elem = document.getElementById('partnership-pathways') || document.getElementById('partnerships');
+    if (elem) elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const scrollToPrograms = () => {
     const elem = document.getElementById('programs');
     if (elem) elem.scrollIntoView({ behavior: 'smooth' });
@@ -69,8 +75,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectAudience }) =>
             {/* CTA Action Buttons */}
             <div className="pt-2 flex flex-col sm:flex-row gap-4">
               <button
-                onClick={() => scrollToContact('School Owner / Proprietor')}
-                className="flex items-center justify-center gap-2 bg-[#D4AF37] hover:bg-[#c29e2f] text-[#0A0D66] font-bold px-7 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all text-base font-grotesk group"
+                onClick={scrollToPartnerships}
+                className="flex items-center justify-center gap-2 bg-[#D4AF37] hover:bg-[#c29e2f] text-[#0A0D66] font-bold px-7 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all text-base font-grotesk group cursor-pointer"
               >
                 <School className="w-5 h-5 text-[#0A0D66]" />
                 <span>Partner Your School</span>

@@ -12,6 +12,12 @@ export const TwoEnginesSection: React.FC<TwoEnginesSectionProps> = ({ onSelectAu
     if (elem) elem.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const scrollToPartnerships = () => {
+    onSelectAudience('School Owner / Proprietor');
+    const elem = document.getElementById('partnership-pathways') || document.getElementById('partnerships');
+    if (elem) elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <section id="how-it-works" className="py-20 bg-white text-[#4B5568] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,7 +61,7 @@ export const TwoEnginesSection: React.FC<TwoEnginesSectionProps> = ({ onSelectAu
                 Academy: EdTech Training
               </h3>
               <p className="text-xs sm:text-sm text-white/80 font-mono mb-6">
-                For high school students & secondary school graduates
+                For high school students & University graduates
               </p>
 
               <ul className="space-y-3.5 text-sm sm:text-base text-white/90">
@@ -87,8 +93,8 @@ export const TwoEnginesSection: React.FC<TwoEnginesSectionProps> = ({ onSelectAu
                 Goal: Portfolio-ready graduates
               </span>
               <button
-                onClick={() => scrollToContact('School Owner / Proprietor')}
-                className="w-full sm:w-auto bg-[#D4AF37] hover:bg-[#c29e2f] text-[#0A0D66] font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm font-grotesk"
+                onClick={scrollToPartnerships}
+                className="w-full sm:w-auto bg-[#D4AF37] hover:bg-[#c29e2f] text-[#0A0D66] font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm font-grotesk cursor-pointer"
               >
                 <span>Partner Your School</span>
                 <ArrowRight className="w-4 h-4" />

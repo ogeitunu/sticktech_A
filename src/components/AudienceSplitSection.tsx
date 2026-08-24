@@ -13,11 +13,11 @@ export const AudienceSplitSection: React.FC<AudienceSplitSectionProps> = ({ onSe
   };
 
   return (
-    <section className="py-20 bg-white text-[#4B5568] relative">
+    <section id="partnerships" className="py-20 bg-white text-[#4B5568] relative scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         
         {/* Section Title */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
+        <div id="partnership-pathways" className="text-center max-w-3xl mx-auto space-y-3 scroll-mt-24 sm:scroll-mt-28">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1116A6]/10 text-[#1116A6] text-xs font-mono font-semibold tracking-wider uppercase">
             <span>PARTNERSHIP PATHWAYS</span>
           </div>
@@ -27,7 +27,7 @@ export const AudienceSplitSection: React.FC<AudienceSplitSectionProps> = ({ onSe
         </div>
 
         {/* 3 Audience Cards */}
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div id="partnership-cards" className="grid lg:grid-cols-3 gap-8 scroll-mt-24 sm:scroll-mt-28">
           
           {/* Card A: For Schools */}
           <div className="bg-slate-50 border-2 border-slate-200 hover:border-[#1116A6] rounded-3xl p-8 flex flex-col justify-between transition-all hover:shadow-xl group">
