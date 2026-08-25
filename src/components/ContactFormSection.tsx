@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import emailjs from '@emailjs/browser'; // 1. EmailJS Import
 import { AudienceType, LeadFormData, LeadRecord } from '../types';
 import { submitLeadToSupabase } from '../lib/supabase';
 import { Send, Mail, Phone, CheckCircle2, AlertCircle, Loader2, User, MessageSquare, ShieldCheck } from 'lucide-react';
@@ -13,11 +14,11 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
   onAudienceChange
 }) => {
   const [formData, setFormData] = useState<LeadFormData>({
-  full_name: '',
-  email: '',
-  audience_type: selectedAudience,
-  message: '',
-} as LeadFormData);
+    full_name: '',
+    email: '',
+    audience_type: selectedAudience,
+    message: '',
+  } as LeadFormData);
   const [honeypot, setHoneypot] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -49,7 +50,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
       return;
     }
 
-    if (!formData.full_name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.message.trim()) {
+    if (!formData.full_name.trim() || !formData.email.trim() || !formData.phone?.trim() || !formData.message.trim()) {
       setErrorMessage('Please fill in all required fields (including Phone Number).');
       return;
     }
@@ -64,9 +65,29 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
     setLoading(true);
 
     try {
+      // 1. Submit lead to Supabase database
       const result = await submitLeadToSupabase(formData);
       
       if (result.success) {
+
+        // 2. Dispatch Auto-Reply Email via EmailJS
+        try {
+          await emailjs.send(
+            import.meta.env.VITE_EMAILJS_SERVICE_ID,
+            import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+            {
+              full_name: formData.full_name,
+              email: formData.email,
+              phone: formData.phone || 'N/A',
+              audience_type: formData.audience_type,
+              message: formData.message,
+            },
+            import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+          );
+        } catch (emailErr) {
+          console.error('EmailJS dispatch error:', emailErr);
+        }
+
         setSubmittedEmail(formData.email.trim());
         setIsSubmitted(true);
         
@@ -284,7 +305,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
                           id="phone"
                           name="phone"
                           required
-                          value={formData.phone}
+                          value={formData.phone || ''}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                           placeholder="+234 801 234 5678 or 08012345678"
                           className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-[#1116A6] focus:ring-2 focus:ring-[#1116A6]/20 text-sm outline-none transition-all pl-10 text-[#0A0D66] font-medium"
@@ -308,12 +329,12 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
                           setFormData({ ...formData, audience_type: val });
                           onAudienceChange(val);
                         }}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-[#1116A6] focus:ring-2 focus:ring-[#1116A6]/20 text-sm outline-none transition-all text-[#0A0D66] font-semibold bg-white"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0A0D66] focus:border-transparent text-sm text-[#0A0D66] outline-none transition-all font-semibold"
                       >
-                        <option value="School Owner / Proprietor">School Owner / Proprietor (School Partnership)</option>
-                        <option value="Graduate">Graduate (Cohort Application)</option>
-                        <option value="SME / Business Owner">SME / Business Owner (Solutions & Retainer Quote)</option>
-                        <option value="Other">Other / General Inquiry</option>
+                        <option value="School Owner / Proprietor">School Owner / Proprietor</option>
+                        <option value="Graduate">Graduate</option>
+                        <option value="SME / Business Owner">SME / Business Owner</option>
+                        <option value="Other">Other</option>
                       </select>
                     </div>
 
@@ -358,7 +379,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
 
                     <div className="text-center pt-2">
                       <span className="text-[11px] text-[#4B5568] block">
-                        Trouble submitting? <a href={`mailto:sticktechafrica@gmail.com?subject=Inquiry from ${encodeURIComponent(formData.full_name || 'Website Visitor')}&body=${encodeURIComponent(formData.message || 'Hello StickTech Africa,')}`} className="text-[#1116A6] font-bold underline">Click here to send email directly</a>
+                        Trouble submitting? <a href={`mailto:sticktechafrica@gmail.com?subject=Inquiry from ${encodeURIComponent(formData.full_name || 'Website Visitor')}&body=${encodeURIComponent(formData.message || 'Hello,')}`} className="text-[#1116A6] font-bold underline">Click here to send email directly</a>
                       </span>
                     </div>
 
