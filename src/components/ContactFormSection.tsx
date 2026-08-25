@@ -70,26 +70,25 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({
       
       if (result.success) {
 
-        // 2. Dispatch Auto-Reply Email via EmailJS
-        try {
-          await emailjs.send(
-            import.meta.env.VITE_EMAILJS_SERVICE_ID,
-            import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-            {
-              full_name: formData.full_name,
-              email: formData.email,
-              phone: formData.phone || 'N/A',
-              audience_type: formData.audience_type,
-              message: formData.message,
-            },
-            import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-          );
-        } catch (emailErr) {
-          console.error('EmailJS dispatch error:', emailErr);
-        }
-
-        setSubmittedEmail(formData.email.trim());
-        setIsSubmitted(true);
+       
+       // 2. Dispatch Auto-Reply Email via EmailJS
+try {
+  const response = await emailjs.send(
+    import.meta.env.VITE_EMAILJS_SERVICE_ID,
+    import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+    {
+      full_name: formData.full_name,
+      email: formData.email,
+      phone: formData.phone || 'N/A',
+      audience_type: formData.audience_type,
+      message: formData.message,
+    },
+    import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+  );
+  console.log('EmailJS Success Status:', response.status, response.text);
+} catch (emailErr) {
+  console.error('EmailJS Failed Error Details:', emailErr);
+}
         
         // Reset form inputs but preserve selected audience type
         setFormData({
