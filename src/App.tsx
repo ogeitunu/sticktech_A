@@ -9,6 +9,7 @@ import { ProgramTracks } from './components/ProgramTracks';
 import { AudienceSplitSection } from './components/AudienceSplitSection';
 import { ContactFormSection } from './components/ContactFormSection';
 import { Footer } from './components/Footer';
+import { StickTechAIChat } from './components/StickTechAIChat';
 
 import { AudienceType } from './types';
 
@@ -61,6 +62,9 @@ export default function App() {
       <Footer
         onSelectAudience={handleAudienceSelection}
       />
+
+      {/* 10. STICKTECH AI VIRTUAL ASSISTANT & WHATSAPP HANDOFF */}
+      <StickTechAIChat />
 
     </div>
   );

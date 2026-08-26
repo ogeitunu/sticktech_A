@@ -4,6 +4,7 @@ import { createServer as createViteServer } from "vite";
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 import { sendAndLogAutomatedEmailResponse } from "./server/emailService";
+import { handleStickTechAIChat, ChatMessage } from "./server/geminiService";
 
 dotenv.config();
 
@@ -233,6 +234,32 @@ app.post("/api/send-email", async (req, res) => {
     res.status(500).json({
       success: false,
       error: err.message || "Failed to process automated email response"
+    });
+  }
+});
+
+// POST /api/chat - StickTech AI Virtual Assistant endpoint
+app.post("/api/chat", async (req, res) => {
+  const { messages } = req.body;
+
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: "Missing or invalid messages array" });
+  }
+
+  try {
+    const result = await handleStickTechAIChat(messages as ChatMessage[]);
+    res.json({
+      success: true,
+      reply: result.reply,
+      showWhatsAppHandoff: result.showWhatsAppHandoff,
+      whatsappLink: result.whatsappLink,
+      whatsappNumber: "+2348067901364"
+    });
+  } catch (err: any) {
+    console.error("StickTech AI chat error:", err);
+    res.status(500).json({
+      success: false,
+      error: err.message || "Failed to process StickTech AI response"
     });
   }
 });

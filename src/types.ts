@@ -15,6 +15,10 @@ export interface LeadFormData {
 export interface LeadRecord extends LeadFormData {
   id: string;
   created_at: string;
+  source?: string;
+  auto_response_sent?: boolean;
+  auto_response_subject?: string;
+  response_sent_at?: string;
 }
 
 export interface Course {
@@ -24,4 +28,22 @@ export interface Course {
   tools: string[];
   studentOutput: string;
   badge: string;
+}
+
+export interface ProgramTrack {
+  id: string;
+  title: string;
+  iconName: string;
+  category: "Academy" | "Solutions" | "Core";
+  description: string;
+  tools: string[];
+  studentOutput: string;
+  badge: string;
+}
+
+export interface SupabaseConfig {
+  url: string;
+  anonKey: string;
+  isConnected: boolean;
+  statusText: string;
 }
