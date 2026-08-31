@@ -45,9 +45,7 @@ export function buildContextualWhatsAppLink(userQuery?: string): string {
     )}`;
   }
 
-  // Truncate long queries cleanly for URL query params
-  const trimmed = userQuery.trim().slice(0, 100);
-  const prefilled = `Hi StickTech Africa, I was just chatting on your website regarding: "${trimmed}" and would like to speak with a specialist.`;
+  const prefilled = `Hi StickTech Africa, I was just chatting on your website regarding: "${userQuery.trim()}" and would like to speak with a specialist.`;
   return `https://wa.me/${CLEAN_WHATSAPP_NUMBER}?text=${encodeURIComponent(prefilled)}`;
 }
 

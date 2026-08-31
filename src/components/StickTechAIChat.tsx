@@ -26,12 +26,10 @@ export interface ChatMessageItem {
 const CLEAN_WHATSAPP_NUMBER = "2348067901364";
 const DISPLAY_WHATSAPP_NUMBER = "+234 806 790 1364";
 
-const DEFAULT_WHATSAPP_LINK = `https://wa.me/${CLEAN_WHATSAPP_NUMBER}?text=${encodeURIComponent(
-  "Hi StickTech Africa, I was just chatting on your website and would like to speak with a specialist."
-)}`;
-
 /**
- * Enhanced local contextual WhatsApp link generator:
+ * Enhanced contextual WhatsApp link generator with Desktop vs Mobile User-Agent detection:
+ * - Mobile Devices: https://wa.me/<PHONE>?text=<ENCODED_TEXT>
+ * - Desktop Devices: https://web.whatsapp.com/send?phone=<PHONE>&text=<ENCODED_TEXT>
  * Preserves full message text without harsh truncation and falls back to history if needed.
  */
 function buildLocalContextualWhatsAppLink(query?: string, messageHistory?: ChatMessageItem[]): string {
@@ -48,11 +46,21 @@ function buildLocalContextualWhatsAppLink(query?: string, messageHistory?: ChatM
     }
   }
 
-  if (!activeQuery) return DEFAULT_WHATSAPP_LINK;
+  const defaultText = "Hi StickTech Africa, I was just chatting on your website and would like to speak with a specialist.";
+  const prefilledMessage = activeQuery
+    ? `Hi StickTech Africa, I was just chatting on your website regarding: "${activeQuery}". I would like to speak directly with a specialist.`
+    : defaultText;
 
-  const prefilledMessage = `Hi StickTech Africa, I was just chatting on your website regarding: "${activeQuery}". I would like to speak directly with a specialist.`;
+  const encodedText = encodeURIComponent(prefilledMessage);
 
-  return `https://wa.me/${CLEAN_WHATSAPP_NUMBER}?text=${encodeURIComponent(prefilledMessage)}`;
+  // Check for desktop browser user agent (window check ensures SSR safety)
+  const isDesktop = typeof window !== 'undefined' && !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (isDesktop) {
+    return `https://web.whatsapp.com/send?phone=${CLEAN_WHATSAPP_NUMBER}&text=${encodedText}`;
+  }
+
+  return `https://wa.me/${CLEAN_WHATSAPP_NUMBER}?text=${encodedText}`;
 }
 
 const INITIAL_MESSAGE: ChatMessageItem = {
@@ -60,8 +68,7 @@ const INITIAL_MESSAGE: ChatMessageItem = {
   role: 'assistant',
   content: "Hello and welcome to StickTech Africa! 👋 I'm StickTech AI, your virtual assistant. How can StickTech Africa assist you today with our DigiSkills training, custom software & AI solutions, or strategic partnerships?",
   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-  showWhatsAppHandoff: false,
-  whatsappLink: DEFAULT_WHATSAPP_LINK
+  showWhatsAppHandoff: false
 };
 
 const SUGGESTED_PROMPTS = [
@@ -192,10 +199,10 @@ export const StickTechAIChat: React.FC = () => {
   return (
     <>
       {/* Floating Chat Launcher Button */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+      <div className="fixed bottom-6 right-6 z-[9999] pointer-events-auto flex flex-col items-end">
         {!isOpen && (
           <div 
-            className="mb-3 hidden sm:flex items-center gap-2 bg-[#0A0D66] text-white px-4 py-2 rounded-full shadow-2xl border border-[#D4AF37]/40 animate-bounce cursor-pointer hover:bg-[#1116A6] transition-colors"
+            className="mb-3 hidden sm:flex items-center gap-2 bg-[#0A0D66] text-white px-4 py-2 rounded-full shadow-2xl border border-[#D4AF37]/40 animate-bounce cursor-pointer hover:bg-[#1116A6] transition-colors pointer-events-auto select-none"
             onClick={() => setIsOpen(true)}
           >
             <Sparkles className="w-4 h-4 text-[#D4AF37]" />
@@ -208,7 +215,7 @@ export const StickTechAIChat: React.FC = () => {
           id="sticktech-ai-launcher"
           onClick={() => setIsOpen(!isOpen)}
           aria-label={isOpen ? "Close StickTech AI chat" : "Open StickTech AI chat"}
-          className={`relative p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center ${
+          className={`relative p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center pointer-events-auto cursor-pointer ${
             isOpen 
               ? 'bg-slate-800 text-white hover:bg-slate-900 rotate-90' 
               : 'bg-[#0A0D66] text-white hover:bg-[#1116A6] border-2 border-[#D4AF37]'
@@ -229,7 +236,7 @@ export const StickTechAIChat: React.FC = () => {
 
       {/* Interactive Chat Window Modal */}
       {isOpen && (
-        <div className="fixed bottom-24 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[410px] h-[580px] max-h-[calc(100vh-8rem)] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden z-50 animate-in fade-in slide-in-from-bottom-5 duration-200 font-sans">
+        <div className="fixed bottom-24 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[410px] h-[580px] max-h-[calc(100vh-8rem)] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden z-[9999] pointer-events-auto animate-in fade-in slide-in-from-bottom-5 duration-200 font-sans">
           
           {/* Header */}
           <div className="bg-[#0A0D66] text-white p-4 border-b-2 border-[#D4AF37] flex items-center justify-between shadow-md">
@@ -257,7 +264,7 @@ export const StickTechAIChat: React.FC = () => {
                 onClick={handleResetChat}
                 title="Restart conversation"
                 aria-label="Restart conversation"
-                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
@@ -265,7 +272,7 @@ export const StickTechAIChat: React.FC = () => {
                 onClick={() => setIsOpen(false)}
                 title="Minimize chat"
                 aria-label="Minimize chat"
-                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
               >
                 <Minimize2 className="w-4 h-4" />
               </button>
@@ -274,10 +281,10 @@ export const StickTechAIChat: React.FC = () => {
 
           {/* WhatsApp Direct Header Strip */}
           <a
-            href={DEFAULT_WHATSAPP_LINK}
+            href={buildLocalContextualWhatsAppLink(undefined, messages)}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-b border-emerald-200 px-4 py-2 flex items-center justify-between text-xs font-semibold transition-colors group"
+            className="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-b border-emerald-200 px-4 py-2 flex items-center justify-between text-xs font-semibold transition-colors group cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -314,10 +321,10 @@ export const StickTechAIChat: React.FC = () => {
                       {msg.role === 'assistant' && msg.showWhatsAppHandoff && (
                         <div className="mt-3 pt-3 border-t border-slate-100">
                           <a
-                            href={msg.whatsappLink || DEFAULT_WHATSAPP_LINK}
+                            href={msg.whatsappLink || buildLocalContextualWhatsAppLink(undefined, messages)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all w-full justify-center group"
+                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all w-full justify-center group cursor-pointer"
                           >
                             <PhoneCall className="w-3.5 h-3.5" />
                             <span>Transfer to WhatsApp ({DISPLAY_WHATSAPP_NUMBER})</span>
