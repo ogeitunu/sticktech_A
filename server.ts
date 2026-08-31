@@ -246,20 +246,32 @@ app.post("/api/chat", async (req, res) => {
     return res.status(400).json({ error: "Missing or invalid messages array" });
   }
 
+  const cleanNumber = "2348067901364";
+  const defaultWhatsAppLink = `https://wa.me/${cleanNumber}`;
+
   try {
+    const lastUserMessage = messages
+      .filter((m: any) => m.role === "user")
+      .pop()?.content?.trim() || "";
+
+    const encodedText = encodeURIComponent(
+      `Hi StickTech Africa, I was just chatting on your website regarding: "${lastUserMessage}" and would like to speak with a specialist.`
+    );
+    const dynamicWhatsAppLink = `https://wa.me/${cleanNumber}?text=${encodedText}`;
+
     const result = await handleStickTechAIChat(messages as ChatMessage[]);
-    res.json({
-      success: true,
+    res.status(200).json({
       reply: result.reply,
       showWhatsAppHandoff: result.showWhatsAppHandoff,
-      whatsappLink: result.whatsappLink,
-      whatsappNumber: "+2348067901364"
+      whatsappLink: result.whatsappLink || dynamicWhatsAppLink,
+      whatsappNumber: `+${cleanNumber}`
     });
   } catch (err: any) {
     console.error("StickTech AI chat error:", err);
     res.status(500).json({
-      success: false,
-      error: err.message || "Failed to process StickTech AI response"
+      reply: "I'd love to connect you directly with a specialist from our team at StickTech Africa! You can seamlessly transfer this conversation to our official WhatsApp line below.",
+      showWhatsAppHandoff: true,
+      whatsappLink: defaultWhatsAppLink
     });
   }
 });
