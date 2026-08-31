@@ -20,23 +20,54 @@ export interface ChatMessageItem {
   content: string;
   timestamp: string;
   showWhatsAppHandoff?: boolean;
+  whatsappLink?: string;
 }
 
-const WHATSAPP_LINK = "https://wa.me/2348067901364?text=Hi%20StickTech%20Africa,%20I%20was%20just%20chatting%20on%20your%20website%20and%20would%20like%20to%20continue%20here.";
-const WHATSAPP_NUMBER = "+234 806 790 1364";
+const CLEAN_WHATSAPP_NUMBER = "2348067901364";
+const DISPLAY_WHATSAPP_NUMBER = "+234 806 790 1364";
+
+const DEFAULT_WHATSAPP_LINK = `https://wa.me/${CLEAN_WHATSAPP_NUMBER}?text=${encodeURIComponent(
+  "Hi StickTech Africa, I was just chatting on your website and would like to speak with a specialist."
+)}`;
+
+/**
+ * Enhanced local contextual WhatsApp link generator:
+ * Preserves full message text without harsh truncation and falls back to history if needed.
+ */
+function buildLocalContextualWhatsAppLink(query?: string, messageHistory?: ChatMessageItem[]): string {
+  let activeQuery = query?.trim();
+
+  // If query is omitted/empty, search history for the most recent user prompt
+  if (!activeQuery && messageHistory && messageHistory.length > 0) {
+    const lastUserMessage = messageHistory
+      .slice()
+      .reverse()
+      .find((m) => m.role === 'user');
+    if (lastUserMessage) {
+      activeQuery = lastUserMessage.content.trim();
+    }
+  }
+
+  if (!activeQuery) return DEFAULT_WHATSAPP_LINK;
+
+  const prefilledMessage = `Hi StickTech Africa, I was just chatting on your website regarding: "${activeQuery}". I would like to speak directly with a specialist.`;
+
+  return `https://wa.me/${CLEAN_WHATSAPP_NUMBER}?text=${encodeURIComponent(prefilledMessage)}`;
+}
 
 const INITIAL_MESSAGE: ChatMessageItem = {
   id: 'init-msg',
   role: 'assistant',
-  content: "Hello and welcome to StickTech Africa! 👋 I'm StickTech AI, your virtual assistant. How can I assist you today? You can ask about our tech training programs, SME software & AI solutions, school partnerships, or chat directly with our team.",
+  content: "Hello and welcome to StickTech Africa! 👋 I'm StickTech AI, your virtual assistant. How can StickTech Africa assist you today with our DigiSkills training, custom software & AI solutions, or strategic partnerships?",
   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-  showWhatsAppHandoff: false
+  showWhatsAppHandoff: false,
+  whatsappLink: DEFAULT_WHATSAPP_LINK
 };
 
 const SUGGESTED_PROMPTS = [
-  "🎓 Tell me about Tech Training",
-  "💼 SME & Custom AI Solutions",
-  "🏫 School Partnerships",
+  "🎓 DigiSkills & Bootcamps",
+  "⚡ Custom Software & AI Agents",
+  "🤝 Institutional Partnerships",
   "💬 Talk to a specialist on WhatsApp"
 ];
 
@@ -77,12 +108,14 @@ export const StickTechAIChat: React.FC = () => {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
+      const contextualLink = buildLocalContextualWhatsAppLink(query, messages);
       const assistantMsg: ChatMessageItem = {
         id: 'msg-' + (Date.now() + 1),
         role: 'assistant',
-        content: "I'd love to connect you directly with one of our lead specialists at StickTech Africa! You can continue this conversation seamlessly on WhatsApp.",
+        content: "I'd love to connect you directly with a specialist from our team at StickTech Africa! You can seamlessly transfer this conversation to our official WhatsApp line below.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        showWhatsAppHandoff: true
+        showWhatsAppHandoff: true,
+        whatsappLink: contextualLink
       };
 
       setMessages(prev => [...prev, userMsg, assistantMsg]);
@@ -118,25 +151,27 @@ export const StickTechAIChat: React.FC = () => {
       }
 
       const data = await res.json();
-      
+      const dynamicLink = data.whatsappLink || buildLocalContextualWhatsAppLink(query, updatedMessages);
+
       const assistantMsg: ChatMessageItem = {
         id: 'msg-' + Date.now(),
         role: 'assistant',
-        content: data.reply || "I'd love to connect you directly with our team! Please feel free to reach out to us on WhatsApp.",
+        content: data.reply || "I'd love to connect you directly with a specialist from our team at StickTech Africa! You can seamlessly transfer this conversation to our official WhatsApp line below.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        showWhatsAppHandoff: data.showWhatsAppHandoff ?? true
+        showWhatsAppHandoff: data.showWhatsAppHandoff ?? true,
+        whatsappLink: dynamicLink
       };
 
       setMessages(prev => [...prev, assistantMsg]);
     } catch (err) {
       console.warn('StickTech AI request fallback:', err);
-      // Clean fallback if network or server error
       const assistantMsg: ChatMessageItem = {
         id: 'msg-' + Date.now(),
         role: 'assistant',
-        content: "I'd love to connect you directly with one of our lead specialists at StickTech Africa! You can continue this conversation seamlessly on WhatsApp.",
+        content: "I'd love to connect you directly with a specialist from our team at StickTech Africa! You can seamlessly transfer this conversation to our official WhatsApp line below.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        showWhatsAppHandoff: true
+        showWhatsAppHandoff: true,
+        whatsappLink: buildLocalContextualWhatsAppLink(query, updatedMessages)
       };
       setMessages(prev => [...prev, assistantMsg]);
     } finally {
@@ -159,8 +194,10 @@ export const StickTechAIChat: React.FC = () => {
       {/* Floating Chat Launcher Button */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
         {!isOpen && (
-          <div className="mb-3 hidden sm:flex items-center gap-2 bg-[#0A0D66] text-white px-4 py-2 rounded-full shadow-2xl border border-[#D4AF37]/40 animate-bounce cursor-pointer hover:bg-[#1116A6] transition-colors"
-               onClick={() => setIsOpen(true)}>
+          <div 
+            className="mb-3 hidden sm:flex items-center gap-2 bg-[#0A0D66] text-white px-4 py-2 rounded-full shadow-2xl border border-[#D4AF37]/40 animate-bounce cursor-pointer hover:bg-[#1116A6] transition-colors"
+            onClick={() => setIsOpen(true)}
+          >
             <Sparkles className="w-4 h-4 text-[#D4AF37]" />
             <span className="text-xs font-semibold">Chat with StickTech AI</span>
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -235,16 +272,16 @@ export const StickTechAIChat: React.FC = () => {
             </div>
           </div>
 
-          {/* WhatsApp Direct Banner */}
+          {/* WhatsApp Direct Header Strip */}
           <a
-            href={WHATSAPP_LINK}
+            href={DEFAULT_WHATSAPP_LINK}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-b border-emerald-200 px-4 py-2 flex items-center justify-between text-xs font-semibold transition-colors group"
           >
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Need human support? Chat on WhatsApp ({WHATSAPP_NUMBER})</span>
+              <span>Official WhatsApp: {DISPLAY_WHATSAPP_NUMBER}</span>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-emerald-700 group-hover:translate-x-0.5 transition-transform" />
           </a>
@@ -277,13 +314,13 @@ export const StickTechAIChat: React.FC = () => {
                       {msg.role === 'assistant' && msg.showWhatsAppHandoff && (
                         <div className="mt-3 pt-3 border-t border-slate-100">
                           <a
-                            href={WHATSAPP_LINK}
+                            href={msg.whatsappLink || DEFAULT_WHATSAPP_LINK}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md hover:shadow-lg transition-all w-full justify-center group"
+                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all w-full justify-center group"
                           >
                             <PhoneCall className="w-3.5 h-3.5" />
-                            <span>Continue on WhatsApp ({WHATSAPP_NUMBER})</span>
+                            <span>Transfer to WhatsApp ({DISPLAY_WHATSAPP_NUMBER})</span>
                             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                           </a>
                         </div>

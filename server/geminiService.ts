@@ -1,53 +1,63 @@
 import { GoogleGenAI } from "@google/genai";
 
-const SYSTEM_INSTRUCTION = `You are "StickTech AI", the official virtual assistant for StickTech Africa.
+const SYSTEM_INSTRUCTION = `You are "StickTech AI", the official intelligent virtual assistant for StickTech Africa (an EdTech and technology solutions company headquartered in Nigeria).
 
-# Role & Persona
-- Your goal is to warmly welcome website visitors, answer their initial questions about StickTech Africa's services and programs, build trust, and seamlessly transfer them to a human representative on WhatsApp when they are ready or require custom assistance.
-- Tone & Style: Warm, professional, helpful, and concise. Direct and clear—avoid unnecessary jargon or overly long paragraphs. Reflect African innovation, tech excellence, and high customer support standards.
-- Always keep responses under 3–4 sentences before offering the next logical step.
+# Core Mission
+- Welcome website visitors, answer questions regarding StickTech Africa's services, build immediate trust, and smoothly hand off interested prospects to a live human representative on WhatsApp.
+- Tone & Style: Professional, warm, clear, empowering, and culturally aligned with African technology excellence. Keep responses concise, direct, and conversational (3–4 sentences maximum per turn).
 
-# Key Business Information
+# Business Knowledge Base
 - Company: StickTech Africa
-- Dual Strategic Engines:
-  1. Academy (EdTech): Practical hands-on training for high school students & university/secondary graduates. Programs include Game Development (Godot/Unity), AI Agents & Full-Stack Web/Mobile, Digital Marketing & Media Tracks, IoT & Robotics, Data Analytics, and UI/UX Design.
-  2. Solutions (SME Agency): Enterprise-grade digital solutions for SMEs & businesses, including Custom WhatsApp AI Bots, Website Development, Cloud Systems, Graphic Branding, and Digital Marketing Retainers.
-  3. Institutional Partnerships: Turn-key curriculum, computer lab setup, and teacher enablement for primary and secondary schools.
-- Official WhatsApp Handle: +2348067901364
-- Official WhatsApp Link: https://wa.me/2348067901364?text=Hi%20StickTech%20Africa,%20I%20was%20just%20chatting%20on%20your%20website%20and%20would%20like%20to%20continue%20here.
+- Official WhatsApp Business Handle: +2348067901364 (Clean format: 2348067901364)
+- Primary Offerings:
+  1. EdTech & Digital Skills Training: DigiSkills programs, cohort bootcamps (graphic design, software development, AI workflows, digital marketing) for students, graduates, and aspiring professionals.
+  2. Software & AI Solutions: Custom web/mobile applications, business automation tools, custom AI agents, and corporate tech integrations for SMEs and scaling businesses.
+  3. Consultation & Strategic Partnerships: Direct business consultations, institutional/school tech partnerships, and custom solution quotes.
 
-# Behavior & Conversation Flow
-1. Greeting & Intake:
-   - Greet the user warmly and concisely.
-   - Ask how you can assist them today (e.g., tech training, software/AI solutions, school partnerships, or general inquiries).
-2. Information & Qualification:
-   - Answer standard questions directly and clearly in under 3-4 sentences.
-   - If the user asks for pricing, custom project quotes, deep technical consultation, or wants to talk to a live team member, prepare them for a direct WhatsApp transfer.
-3. Automation & Handoff Trigger:
-   - When a user shows interest in proceeding, enrolling, booking a consultation, requesting a custom build, or asking for human assistance, present them with the WhatsApp handoff link.
-   - Handoff Message Template:
-     "I'd love to connect you directly with one of our lead specialists at StickTech Africa! You can continue this conversation seamlessly on WhatsApp."
-   - Always include the WhatsApp link: https://wa.me/2348067901364?text=Hi%20StickTech%20Africa,%20I%20was%20just%20chatting%20on%20your%20website%20and%20would%20like%20to%20continue%20here.
-
-# Guardrails
-- If you do not know the answer to a specific question, do not make up details. Politely invite the user to chat directly with the team on WhatsApp at +2348067901364.
-- Always keep responses under 3–4 sentences.`;
+# Key Guidelines & Conversation Rules
+1. Intake & Qualification:
+   - Greet visitors warmly and ask how StickTech Africa can assist them today.
+   - Address general queries directly and clearly in 3-4 sentences maximum.
+2. Automated WhatsApp Handoff Trigger:
+   - If a user asks for specific pricing, custom quotes, deep technical consultation, partnership details, or explicitly requests human assistance, provide a helpful summary answer and immediately offer the WhatsApp transition.
+   - Handoff Text Template: "I'd love to connect you directly with a specialist from our team at StickTech Africa! You can seamlessly transfer this conversation to our official WhatsApp line below."
+   - Always instruct the system to trigger the WhatsApp link using the clean number format: 2348067901364.
+3. Guardrails:
+   - Never fabricate details, specific pricing numbers, or contractual guarantees.
+   - If a request is unclear or out of scope, politely direct the user to connect with the team directly on WhatsApp (+2348067901364).
+   - Strict limit: Keep responses under 3–4 sentences.`;
 
 export interface ChatMessage {
   role: 'user' | 'model' | 'assistant';
   content: string;
 }
 
-const WHATSAPP_LINK = "https://wa.me/2348067901364?text=Hi%20StickTech%20Africa,%20I%20was%20just%20chatting%20on%20your%20website%20and%20would%20like%20to%20continue%20here.";
-const WHATSAPP_NUMBER = "+2348067901364";
+export const CLEAN_WHATSAPP_NUMBER = "2348067901364";
+export const DISPLAY_WHATSAPP_NUMBER = "+234 806 790 1364";
 
 /**
- * Intelligent domain-aware response generator as fallback when Gemini API key is not present
+ * Creates a contextual pre-filled WhatsApp link based on the user's latest query or topic
+ */
+export function buildContextualWhatsAppLink(userQuery?: string): string {
+  if (!userQuery || userQuery.trim().length === 0) {
+    return `https://wa.me/${CLEAN_WHATSAPP_NUMBER}?text=${encodeURIComponent(
+      "Hi StickTech Africa, I was just chatting on your website and would like to continue here."
+    )}`;
+  }
+
+  // Truncate long queries cleanly for URL query params
+  const trimmed = userQuery.trim().slice(0, 100);
+  const prefilled = `Hi StickTech Africa, I was just chatting on your website regarding: "${trimmed}" and would like to speak with a specialist.`;
+  return `https://wa.me/${CLEAN_WHATSAPP_NUMBER}?text=${encodeURIComponent(prefilled)}`;
+}
+
+/**
+ * Intelligent domain-aware response generator as fallback when Gemini API is unavailable
  */
 function generateFallbackResponse(userMessage: string): { reply: string; showWhatsAppHandoff: boolean } {
   const lower = userMessage.toLowerCase().trim();
 
-  // 1. Human handoff / Talk to team / WhatsApp / Booking / Quote
+  // 1. Human handoff / Talk to team / WhatsApp / Booking / Quote / Pricing
   if (
     lower.includes("whatsapp") ||
     lower.includes("human") ||
@@ -69,60 +79,66 @@ function generateFallbackResponse(userMessage: string): { reply: string; showWha
     lower.includes("apply")
   ) {
     return {
-      reply: `I'd love to connect you directly with one of our lead specialists at StickTech Africa! You can continue this conversation seamlessly on WhatsApp.`,
+      reply: `I'd love to connect you directly with a specialist from our team at StickTech Africa! You can seamlessly transfer this conversation to our official WhatsApp line below.`,
       showWhatsAppHandoff: true
     };
   }
 
-  // 2. Training / Academy / Courses / Curriculum
+  // 2. Training / EdTech / DigiSkills / Bootcamps / Courses
   if (
+    lower.includes("digiskill") ||
+    lower.includes("bootcamp") ||
     lower.includes("course") ||
     lower.includes("program") ||
     lower.includes("train") ||
     lower.includes("learn") ||
+    lower.includes("graphic design") ||
+    lower.includes("software development") ||
+    lower.includes("ai workflow") ||
+    lower.includes("digital marketing") ||
     lower.includes("student") ||
     lower.includes("graduate") ||
-    lower.includes("curriculum") ||
     lower.includes("academy") ||
-    lower.includes("game dev") ||
-    lower.includes("ai agent") ||
     lower.includes("coding")
   ) {
     return {
-      reply: `StickTech Africa offers industry-aligned training in Game Development, AI Agents & Full-Stack Development, IoT & Robotics, and Digital Media. Our hands-on cohorts are tailored for secondary graduates and students building real-world portfolios. Would you like our syllabus or to connect directly with admissions on WhatsApp?`,
+      reply: `StickTech Africa offers premier DigiSkills programs and cohort bootcamps covering Software Development, AI Workflows, Graphic Design, and Digital Marketing. Our practical cohorts are built to equip learners with high-demand tech skills and real portfolios. Would you like syllabus details or to connect with admissions directly on WhatsApp?`,
       showWhatsAppHandoff: false
     };
   }
 
-  // 3. SME / Business / AI Solutions / Website
+  // 3. Software & AI Solutions / SME Automation / Apps / Agents
   if (
     lower.includes("sme") ||
     lower.includes("business") ||
     lower.includes("solution") ||
+    lower.includes("automation") ||
+    lower.includes("agent") ||
+    lower.includes("app") ||
     lower.includes("bot") ||
     lower.includes("software") ||
     lower.includes("website") ||
-    lower.includes("marketing") ||
-    lower.includes("retainer") ||
+    lower.includes("web") ||
+    lower.includes("integration") ||
     lower.includes("agency")
   ) {
     return {
-      reply: `Our Tech Solutions wing builds custom AI WhatsApp bots, responsive web applications, and full-stack digital infrastructure for SMEs and scaling businesses. We also provide monthly digital marketing and growth retainers. Would you like a customized quote from our technical lead on WhatsApp?`,
+      reply: `Our Software & AI Solutions division engineers custom web and mobile applications, business automation pipelines, custom AI agents, and corporate integrations. We help SMEs scale operations and deliver modern digital customer experiences. Shall I transfer you to our technical lead on WhatsApp for a consultation?`,
       showWhatsAppHandoff: true
     };
   }
 
-  // 4. School partnerships
+  // 4. Consultation & School / Institutional Partnerships
   if (
     lower.includes("school") ||
     lower.includes("partner") ||
-    lower.includes("proprietor") ||
-    lower.includes("teacher") ||
     lower.includes("institution") ||
+    lower.includes("proprietor") ||
+    lower.includes("consult") ||
     lower.includes("lab")
   ) {
     return {
-      reply: `We partner with schools to integrate turn-key coding, AI, and game design curricula into their classrooms, complete with teacher training and lab modernizations. We'd love to discuss how to bring StickTech to your institution. Shall we connect you with our Education Director on WhatsApp?`,
+      reply: `We partner with schools, institutions, and corporate bodies for curriculum integration, lab modernizations, and strategic digital transformation. We'd be thrilled to explore how StickTech Africa can support your organization. Would you like to connect directly with our partnership director on WhatsApp?`,
       showWhatsAppHandoff: true
     };
   }
@@ -130,14 +146,14 @@ function generateFallbackResponse(userMessage: string): { reply: string; showWha
   // 5. Greeting
   if (lower.match(/^(hi|hello|hey|good day|good morning|good afternoon|good evening|howdy)/)) {
     return {
-      reply: `Hello and welcome to StickTech Africa! I'm StickTech AI, your virtual assistant. How can I assist you today with our tech training programs, SME software & AI solutions, or school partnerships?`,
+      reply: `Hello and welcome to StickTech Africa! I'm StickTech AI, your virtual assistant. How can StickTech Africa assist you today with our DigiSkills training, custom software & AI solutions, or strategic partnerships?`,
       showWhatsAppHandoff: false
     };
   }
 
   // 6. Default Fallback
   return {
-    reply: `StickTech Africa powers practical tech education for young innovators and builds enterprise AI & software solutions for growing businesses. For detailed consultations or custom inquiries, our team is always available on WhatsApp at ${WHATSAPP_NUMBER}.`,
+    reply: `StickTech Africa powers practical tech education and builds enterprise AI & software solutions for growing businesses. For personalized consultation and custom project quotes, our team is directly reachable on WhatsApp at ${DISPLAY_WHATSAPP_NUMBER}.`,
     showWhatsAppHandoff: true
   };
 }
@@ -147,8 +163,9 @@ function generateFallbackResponse(userMessage: string): { reply: string; showWha
  */
 export async function handleStickTechAIChat(
   messages: ChatMessage[]
-): Promise<{ reply: string; showWhatsAppHandoff: boolean; whatsappLink: string }> {
+): Promise<{ reply: string; showWhatsAppHandoff: boolean; whatsappLink: string; whatsappNumber: string }> {
   const latestMessage = messages[messages.length - 1]?.content || "";
+  const contextualLink = buildContextualWhatsAppLink(latestMessage);
 
   // Check if API key is available
   const apiKey = process.env.GEMINI_API_KEY;
@@ -158,7 +175,8 @@ export async function handleStickTechAIChat(
     return {
       reply: fallback.reply,
       showWhatsAppHandoff: fallback.showWhatsAppHandoff,
-      whatsappLink: WHATSAPP_LINK
+      whatsappLink: contextualLink,
+      whatsappNumber: CLEAN_WHATSAPP_NUMBER
     };
   }
 
@@ -203,12 +221,16 @@ export async function handleStickTechAIChat(
           break;
         }
       } catch (modelErr: any) {
-        // If high-demand 503 or transient error, try next candidate model
         const errMsg = modelErr?.message || String(modelErr);
-        if (errMsg.includes("503") || errMsg.includes("429") || errMsg.includes("UNAVAILABLE") || errMsg.includes("high demand") || errMsg.includes("RESOURCE_EXHAUSTED")) {
+        if (
+          errMsg.includes("503") ||
+          errMsg.includes("429") ||
+          errMsg.includes("UNAVAILABLE") ||
+          errMsg.includes("high demand") ||
+          errMsg.includes("RESOURCE_EXHAUSTED")
+        ) {
           continue;
         }
-        // For other fatal issues, continue to next model as well
         continue;
       }
     }
@@ -218,22 +240,27 @@ export async function handleStickTechAIChat(
       return {
         reply: fallback.reply,
         showWhatsAppHandoff: fallback.showWhatsAppHandoff,
-        whatsappLink: WHATSAPP_LINK
+        whatsappLink: contextualLink,
+        whatsappNumber: CLEAN_WHATSAPP_NUMBER
       };
     }
 
-    const showHandoff = replyText.toLowerCase().includes("whatsapp") ||
-      replyText.includes("wa.me") ||
-      replyText.includes("+2348067901364") ||
+    const showHandoff =
+      replyText.toLowerCase().includes("whatsapp") ||
+      replyText.includes("2348067901364") ||
+      replyText.includes("specialist") ||
       latestMessage.toLowerCase().includes("quote") ||
       latestMessage.toLowerCase().includes("price") ||
+      latestMessage.toLowerCase().includes("cost") ||
       latestMessage.toLowerCase().includes("human") ||
+      latestMessage.toLowerCase().includes("partner") ||
       latestMessage.toLowerCase().includes("specialist");
 
     return {
       reply: replyText,
       showWhatsAppHandoff: showHandoff,
-      whatsappLink: WHATSAPP_LINK
+      whatsappLink: contextualLink,
+      whatsappNumber: CLEAN_WHATSAPP_NUMBER
     };
   } catch (error: any) {
     console.warn("Gemini API call failed, using intelligent fallback:", error?.message || error);
@@ -241,7 +268,9 @@ export async function handleStickTechAIChat(
     return {
       reply: fallback.reply,
       showWhatsAppHandoff: fallback.showWhatsAppHandoff,
-      whatsappLink: WHATSAPP_LINK
+      whatsappLink: contextualLink,
+      whatsappNumber: CLEAN_WHATSAPP_NUMBER
     };
   }
 }
+
