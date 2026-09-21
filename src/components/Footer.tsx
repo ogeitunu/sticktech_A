@@ -61,10 +61,11 @@ export const Footer: React.FC<FooterProps> = ({ onSelectAudience }) => {
           {/* Brand Info */}
           <div className="md:col-span-5 space-y-4">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-xl bg-[#1116A6] border-2 border-[#D4AF37]/60 flex items-center justify-center font-bold shadow-md shrink-0">
-                <span className="font-mono text-2xl font-black text-[#D4AF37]">S</span>
-                <span className="font-mono text-2xl font-black text-white -ml-0.5">A</span>
-              </div>
+              <img
+                src="/logo.png"
+                alt="StickTech Africa Logo"
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover shadow-lg shrink-0 border-2 border-[#D4AF37]/70 bg-[#0014B8]"
+              />
               <span className="font-bold text-2xl font-grotesk tracking-tight text-white">
                 StickTech <span className="text-[#D4AF37]">Africa</span>
               </span>

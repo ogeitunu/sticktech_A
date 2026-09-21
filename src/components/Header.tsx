@@ -94,14 +94,11 @@ export const Header: React.FC<HeaderProps> = ({ onSelectAudience }) => {
             aria-label="StickTech Africa - Back to top"
             className="flex items-center gap-3.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] rounded-lg p-1"
           >
-            <div className="w-12 h-12 rounded-xl bg-[#0A0D66] border-2 border-[#D4AF37]/60 flex items-center justify-center font-bold shadow-md group-hover:scale-105 transition-transform shrink-0">
-              <span className="font-mono text-2xl font-black text-[#D4AF37]">
-                S
-              </span>
-              <span className="font-mono text-2xl font-black text-white -ml-0.5">
-                A
-              </span>
-            </div>
+            <img
+              src="/logo.png"
+              alt="StickTech Africa Logo"
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover shadow-lg group-hover:scale-105 transition-transform shrink-0 border-2 border-[#D4AF37]/70 bg-[#0014B8]"
+            />
 
             <div className="flex flex-col">
               <span className="font-bold text-2xl tracking-tight text-white font-grotesk flex items-center gap-1.5">
